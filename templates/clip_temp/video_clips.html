@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %} List of videos {% endblock %}
+
+{% block body %}
+    <div class="video-clip">
+        <div class="container">
+            <div class="filteration">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="filter-nav mt-2 mb-2">
+                            <div class="row">
+                                <div class="col-md-1 mt-2">
+                                    <p class="tags">test</p>
+                                </div>
+                                <div class="col-md-1 mt-2">
+                                    <p class="tags">test</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="video-clip-list">
+                <div class="row">
+                    {% for clip in clips %}
+                        <a href="#">
+                            <div class="col-md-4">
+                                <video autoplay muted loop src="{{ clip.video.url }}"></video>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
