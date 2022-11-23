@@ -2,35 +2,112 @@
 {% block title %} List of videos {% endblock %}
 
 {% block body %}
+    {% load filter %}
     <div class="video-clip">
         <div class="container">
             <div class="filteration">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="filter-nav mt-2 mb-2">
-                            <div class="row">
-                                <div class="col-md-1 mt-2">
-                                    <p class="tags">test</p>
-                                </div>
-                                <div class="col-md-1 mt-2">
-                                    <p class="tags">test</p>
-                                </div>
-                            </div>
+                            <form method="get">
+                                {{ request.GET.getlist.choices }}
+                                {% for tag in tags %}
+                                    <div class="mt-2 d-inline-block">
+                                        <input
+                                            type="checkbox"
+                                            class="tags choices"
+                                            id="{{ tag.id }}"
+                                            {% if tag.name in choices %}
+                                            checked
+                                            {% endif %}
+                                            name="choices"
+                                            value="{{ tag.name }}"
+                                            {% if tag.name in choices %}
+                                            data-checked="checked"
+                                            {% else %}
+                                            data-checked=""
+                                            {% endif %}
+                                        >
+
+                                        <label class="tag-label" for="{{ tag.id }}">{{ tag.name }}</label>
+                                    </div>
+                                {% endfor %}
+                                <input type="submit" hidden id="filter-data">
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="video-clip-list">
                 <div class="row">
-                    {% for clip in clips %}
-                        <a href="#">
-                            <div class="col-md-4">
-                                <video autoplay muted loop src="{{ clip.video.url }}"></video>
+                    {% for video in videos.object_list %}
+                        <a href="{% url 'viewer:video_target' video.id %}">
+                            <div class="col-md-4 add-video">
+                                <video autoplay muted loop src="{{ video.video.url }}"></video>
+                                {% if video.viewed %}
+                                    <span id="checked"></span>
+                                {% endif %}
+                                <br>
                             </div>
+                            <span>{% video_name video.video.name %}</span>
                         </a>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
+    {% if videos %}
+        {% if is_pager is True %}
+            <div class="row">
+        <div class="col-lg-12 text-center">
+            <ul class="pagination">
+                <li class="page-item not-active{% if not prev_url %} disabled {% endif %}">
+                    <a class="page-link" href="{{ prev_url }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+
+                {% for n in videos.paginator.page_range %}
+                    {% if videos.number == n %}
+                        <li class="page-item active">
+                            <a class="page-link" href="?page={{ n }}">
+                                {{ n }}
+                                <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                    {% elif n > videos.number|add:-4 and n < videos.number|add:4 %}
+                        <li class="page-item not-active">
+                            <a class="page-link" href="?page={{ n }}">
+                                {{ n }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                <li class="page-item not-active{% if not next_url %} disabled {% endif %}">
+                    <a class="page-link" href="{{ next_url }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+        {% endif %}
+    {% endif %}
+    <script>
+        let tag_label = document.querySelectorAll(".tag-label");
+        let submit_btn = document.getElementById("filter-data");
+        let tag_form = document.querySelector("form");
+
+        function click_label(tag_list) {
+            for (let i = 0; i < tag_list.length; i++) {
+                tag_list[i].addEventListener('click', function (e) {
+                    setTimeout(() => {
+                        tag_form.submit();
+                    }, 50);
+                });
+            }
+        }
+        click_label(tag_label);
+    </script>
 {% endblock %}
